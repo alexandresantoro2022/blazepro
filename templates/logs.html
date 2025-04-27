@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs BlazePro</title>
+</head>
+<body>
+    <h1>Logs do Bot 📜</h1>
+
+    <div style="height: 400px; overflow-y: scroll;">
+        {% for log in logs %}
+            <p>{{ log }}</p>
+        {% endfor %}
+    </div>
+
+    <a href="/dashboard"><button>Voltar ao Dashboard ⬅️</button></a>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard BlazePro</title>
+</head>
+<body>
+    <h1>Dashboard BlazePro 🔥</h1>
+
+    <p>Status do Bot: <strong>{{ 'Ativo' if bot_running else 'Parado' }}</strong></p>
+    <p>Saldo Simulado: <strong>R$ {{ saldo }}</strong></p>
+
+    <form method="post" action="/start_bot">
+        <button type="submit">Iniciar Bot ▶️</button>
+    </form>
+
+    <form method="post" action="/stop_bot">
+        <button type="submit">Parar Bot ⏹️</button>
+    </form>
+
+    <a href="/settings"><button>Configurações ⚙️</button></a>
+    <a href="/logs"><button>Ver Logs 📜</button></a>
+</body>
+</html>

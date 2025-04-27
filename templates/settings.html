@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações BlazePro</title>
+</head>
+<body>
+    <h1>Configurações 🔥</h1>
+
+    <form method="post" action="/save_settings">
+        <label>Valor Inicial da Aposta:</label><br>
+        <input type="number" step="0.01" name="initial_bet" value="{{ config.initial_bet }}"><br>
+
+        <label>Meta de Ganho (Stop Win):</label><br>
+        <input type="number" step="0.01" name="stop_win" value="{{ config.stop_win }}"><br>
+
+        <label>Limite de Perda (Stop Loss):</label><br>
+        <input type="number" step="0.01" name="stop_loss" value="{{ config.stop_loss }}"><br>
+
+        <label>Máximo Martingale:</label><br>
+        <input type="number" name="martingale_limit" value="{{ config.martingale_limit }}"><br>
+
+        <label>Email Blaze:</label><br>
+        <input type="email" name="email" value="{{ config.email }}"><br>
+
+        <label>Senha Blaze:</label><br>
+        <input type="password" name="password" value="{{ config.password }}"><br><br>
+
+        <button type="submit">Salvar Configurações</button>
+    </form>
+
+    <a href="/dashboard"><button>Voltar ao Dashboard ⬅️</button></a>
+</body>
+</html>
