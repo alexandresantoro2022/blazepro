@@ -1,0 +1,91 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    📥 QUICK REFERENCE - DOWNLOADS                          ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 📍 LOCALIZAÇÃO DO DIRETÓRIO                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   Caminho: /vercel/sandbox
+   Sistema: Amazon Linux 2023
+   Python:  3.9.25
+   Espaço:  26.23 GB livre
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ⚡ COMANDOS RÁPIDOS                                                       ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   # Criar backup ZIP
+   python download_cli.py zip meu_backup
+
+   # Listar arquivos
+   python download_cli.py list
+
+   # Ver informações
+   python download_cli.py info
+
+   # Copiar arquivo
+   python download_cli.py copy main.py /tmp/
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🌐 API WEB ENDPOINTS                                                     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   1. Iniciar: python main.py
+   2. Login:   http://127.0.0.1:8001/
+              admin / admin123
+
+   Endpoints:
+   • /files                    - Lista arquivos
+   • /download/config          - Download config.json
+   • /download/logs            - Download logs
+   • /download/file?path=X     - Download qualquer arquivo
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🐧 COMANDOS LINUX                                                        ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   # ZIP manual
+   zip -r backup.zip . -x "*.git*" -x "*__pycache__*"
+
+   # TAR.GZ
+   tar -czf backup.tar.gz --exclude='.git' .
+
+   # Copiar projeto
+   cp -r /vercel/sandbox /tmp/projeto
+
+   # Ver onde está
+   pwd
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 📁 ARQUIVOS CRIADOS                                                      ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   ⭐ projeto_completo.zip      - Backup completo (20.68 KB)
+   ⭐ download_cli.py            - Ferramenta CLI
+   ⭐ COMO_FAZER_DOWNLOAD.md     - Guia completo
+   📄 SANDBOX_INFO.md            - Info detalhada
+   📄 RESUMO_DOWNLOADS.txt       - Resumo
+   📄 QUICK_REFERENCE.txt        - Este arquivo
+   📄 download_helper.py         - Helper functions
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 💡 DICAS                                                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   ✓ Você já está em /vercel/sandbox
+   ✓ Backup ZIP já criado: projeto_completo.zip
+   ✓ Use CLI tool para facilitar: download_cli.py
+   ✓ Ambiente temporário - sempre faça backup!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 📚 DOCUMENTAÇÃO                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   cat COMO_FAZER_DOWNLOAD.md   - Guia completo
+   cat RESUMO_DOWNLOADS.txt      - Resumo detalhado
+   python download_cli.py help   - Ajuda CLI
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║  🎯 COMANDO MAIS RÁPIDO: python download_cli.py zip meu_backup            ║
+╚════════════════════════════════════════════════════════════════════════════╝

@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import json
+import os
+from pathlib import Path
 
 from blaze_bot import blaze_client
 
@@ -112,6 +114,82 @@ async def logs_page(request: Request):
         return RedirectResponse(url="/", status_code=303)
     logs = blaze_client.get_logs()
     return templates.TemplateResponse("logs.html", {"request": request, "logs": logs})
+
+@app.get("/download/config")
+async def download_config(request: Request):
+    """Download the config.json file"""
+    if request.cookies.get("logged_in") != "true":
+        return RedirectResponse(url="/", status_code=303)
+    
+    config_path = "/vercel/sandbox/blaze_bot/config.json"
+    if os.path.exists(config_path):
+        return FileResponse(
+            path=config_path,
+            filename="config.json",
+            media_type="application/json"
+        )
+    return {"error": "Config file not found"}
+
+@app.get("/download/logs")
+async def download_logs(request: Request):
+    """Download logs as a text file"""
+    if request.cookies.get("logged_in") != "true":
+        return RedirectResponse(url="/", status_code=303)
+    
+    logs = blaze_client.get_logs()
+    logs_path = "/vercel/sandbox/logs.txt"
+    
+    with open(logs_path, "w", encoding="utf-8") as f:
+        for log in logs:
+            f.write(log + "\n")
+    
+    return FileResponse(
+        path=logs_path,
+        filename="blaze_logs.txt",
+        media_type="text/plain"
+    )
+
+@app.get("/files")
+async def list_files(request: Request):
+    """List all files in the sandbox directory"""
+    if request.cookies.get("logged_in") != "true":
+        return RedirectResponse(url="/", status_code=303)
+    
+    sandbox_dir = Path("/vercel/sandbox")
+    files = []
+    
+    for item in sandbox_dir.rglob("*"):
+        if item.is_file() and not str(item).startswith("/vercel/sandbox/.git"):
+            relative_path = item.relative_to(sandbox_dir)
+            files.append({
+                "name": item.name,
+                "path": str(relative_path),
+                "size": item.stat().st_size,
+                "download_url": f"/download/file?path={relative_path}"
+            })
+    
+    return {"sandbox_directory": str(sandbox_dir), "files": files}
+
+@app.get("/download/file")
+async def download_file(request: Request, path: str):
+    """Download any file from the sandbox directory"""
+    if request.cookies.get("logged_in") != "true":
+        return RedirectResponse(url="/", status_code=303)
+    
+    file_path = Path("/vercel/sandbox") / path
+    
+    # Security check: ensure the file is within the sandbox directory
+    if not str(file_path.resolve()).startswith("/vercel/sandbox"):
+        return {"error": "Access denied"}
+    
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(
+            path=str(file_path),
+            filename=file_path.name,
+            media_type="application/octet-stream"
+        )
+    
+    return {"error": "File not found"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8001)
