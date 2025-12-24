@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurant.name }} - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                {% if current_user %}
+                    <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+                    <a href="/logout" class="btn btn-secondary">Sair</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Entrar</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="restaurant-header">
+            <div class="restaurant-header-info">
+                <h1>{{ restaurant.name }}</h1>
+                <p>{{ restaurant.description }}</p>
+                <div class="restaurant-meta">
+                    <span class="meta-item">⭐ {{ restaurant.rating }}</span>
+                    <span class="meta-item">🚚 R$ {{ "%.2f"|format(restaurant.delivery_fee) }}</span>
+                    <span class="meta-item">⏱️ {{ restaurant.delivery_time }}</span>
+                    <span class="meta-item">📍 {{ restaurant.address }}</span>
+                </div>
+                <p class="min-order-info">Pedido mínimo: R$ {{ "%.2f"|format(restaurant.min_order) }}</p>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <div class="menu-items">
+                {% for category, items in categories.items() %}
+                <div class="menu-category">
+                    <h2 class="category-title">{{ category }}</h2>
+                    <div class="items-grid">
+                        {% for item in items %}
+                        <div class="menu-item-card">
+                            <div class="item-info">
+                                <h3>{{ item.name }}</h3>
+                                <p class="item-description">{{ item.description }}</p>
+                                <p class="item-price">R$ {{ "%.2f"|format(item.price) }}</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm add-to-cart" 
+                                    data-id="{{ item.id }}" 
+                                    data-name="{{ item.name }}" 
+                                    data-price="{{ item.price }}">
+                                Adicionar
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="cart-sidebar">
+                <div class="cart-sticky">
+                    <h3>🛒 Seu Pedido</h3>
+                    <div id="cart-items"></div>
+                    <div class="cart-summary">
+                        <div class="summary-line">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">R$ 0,00</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Taxa de entrega:</span>
+                            <span>R$ {{ "%.2f"|format(restaurant.delivery_fee) }}</span>
+                        </div>
+                        <div class="summary-line total">
+                            <span>Total:</span>
+                            <span id="total">R$ {{ "%.2f"|format(restaurant.delivery_fee) }}</span>
+                        </div>
+                    </div>
+                    <button id="checkout-btn" class="btn btn-primary btn-block" disabled>
+                        Finalizar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Finalizar Pedido</h2>
+            <form id="checkout-form" method="POST" action="/order/create">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.id }}">
+                <input type="hidden" name="items" id="items-json">
+                <div class="form-group">
+                    <label for="delivery_address">Endereço de Entrega</label>
+                    <input type="text" id="delivery_address" name="delivery_address" 
+                           value="{% if current_user %}{{ current_user.address }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment_method">Forma de Pagamento</label>
+                    <select id="payment_method" name="payment_method" required>
+                        <option value="cash">Dinheiro</option>
+                        <option value="credit_card">Cartão de Crédito</option>
+                        <option value="debit_card">Cartão de Débito</option>
+                        <option value="pix">PIX</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Observações</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Confirmar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        const deliveryFee = {{ restaurant.delivery_fee }};
+        const minOrder = {{ restaurant.min_order }};
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+                const price = parseFloat(this.dataset.price);
+                
+                const existingItem = cart.find(item => item.menu_item_id == id);
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({
+                        menu_item_id: id,
+                        name: name,
+                        price: price,
+                        quantity: 1
+                    });
+                }
+                updateCart();
+            });
+        });
+
+        function updateCart() {
+            const cartItemsDiv = document.getElementById('cart-items');
+            cartItemsDiv.innerHTML = '';
+            
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <div class="cart-item-info">
+                        <strong>${item.name}</strong>
+                        <span>R$ ${item.price.toFixed(2)} x ${item.quantity}</span>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="btn-icon" onclick="decreaseQuantity(${item.menu_item_id})">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="btn-icon" onclick="increaseQuantity(${item.menu_item_id})">+</button>
+                        <button class="btn-icon btn-remove" onclick="removeItem(${item.menu_item_id})">🗑️</button>
+                    </div>
+                `;
+                cartItemsDiv.appendChild(itemDiv);
+            });
+            
+            const total = subtotal + deliveryFee;
+            document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `R$ ${total.toFixed(2)}`;
+            
+            const checkoutBtn = document.getElementById('checkout-btn');
+            if (cart.length > 0 && subtotal >= minOrder) {
+                checkoutBtn.disabled = false;
+            } else {
+                checkoutBtn.disabled = true;
+            }
+        }
+
+        function increaseQuantity(id) {
+            const item = cart.find(item => item.menu_item_id == id);
+            if (item) {
+                item.quantity++;
+                updateCart();
+            }
+        }
+
+        function decreaseQuantity(id) {
+            const item = cart.find(item => item.menu_item_id == id);
+            if (item && item.quantity > 1) {
+                item.quantity--;
+                updateCart();
+            }
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(item => item.menu_item_id != id);
+            updateCart();
+        }
+
+        const modal = document.getElementById('checkout-modal');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const closeBtn = document.querySelector('.close');
+
+        checkoutBtn.addEventListener('click', function() {
+            {% if not current_user %}
+                window.location.href = '/login';
+                return;
+            {% endif %}
+            document.getElementById('items-json').value = JSON.stringify(cart);
+            modal.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

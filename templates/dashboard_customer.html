@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Cliente - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                <span class="user-greeting">Olá, {{ current_user.full_name }}</span>
+                <a href="/" class="btn btn-secondary">Restaurantes</a>
+                <a href="/logout" class="btn btn-secondary">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <h1>Meus Pedidos</h1>
+        
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Pedido #{{ order.order_number }}</h3>
+                    <span class="order-status status-{{ order.status.value }}">{{ order.status.value|upper }}</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Restaurante:</strong> {{ order.restaurant.name }}</p>
+                    <p><strong>Endereço:</strong> {{ order.delivery_address }}</p>
+                    <p><strong>Total:</strong> R$ {{ "%.2f"|format(order.total) }}</p>
+                    <p><strong>Data:</strong> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                    {% if order.driver %}
+                    <p><strong>Entregador:</strong> {{ order.driver.full_name }} - {{ order.driver.phone }}</p>
+                    {% endif %}
+                    <div class="order-items">
+                        <strong>Itens:</strong>
+                        <ul>
+                            {% for item in order.items %}
+                            <li>{{ item.quantity }}x {{ item.menu_item.name }} - R$ {{ "%.2f"|format(item.price * item.quantity) }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Você ainda não fez nenhum pedido.</p>
+            <a href="/" class="btn btn-primary">Ver Restaurantes</a>
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Entregador - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                <span class="user-greeting">Olá, {{ current_user.full_name }}</span>
+                <a href="/logout" class="btn btn-secondary">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <h1>Painel do Entregador</h1>
+        
+        <h2>Pedidos Disponíveis</h2>
+        {% if available_orders %}
+        <div class="orders-list">
+            {% for order in available_orders %}
+            <div class="order-card available">
+                <div class="order-header">
+                    <h3>Pedido #{{ order.order_number }}</h3>
+                    <span class="order-status status-ready">PRONTO PARA ENTREGA</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Restaurante:</strong> {{ order.restaurant.name }}</p>
+                    <p><strong>Endereço de Coleta:</strong> {{ order.restaurant.address }}</p>
+                    <p><strong>Endereço de Entrega:</strong> {{ order.delivery_address }}</p>
+                    <p><strong>Cliente:</strong> {{ order.customer.full_name }} - {{ order.customer.phone }}</p>
+                    <p><strong>Total:</strong> R$ {{ "%.2f"|format(order.total) }}</p>
+                    <form method="POST" action="/order/{{ order.id }}/assign-driver">
+                        <button type="submit" class="btn btn-primary">Aceitar Entrega</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhum pedido disponível no momento.</p>
+        {% endif %}
+
+        <h2>Minhas Entregas</h2>
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Pedido #{{ order.order_number }}</h3>
+                    <span class="order-status status-{{ order.status.value }}">{{ order.status.value|upper }}</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Restaurante:</strong> {{ order.restaurant.name }}</p>
+                    <p><strong>Endereço de Coleta:</strong> {{ order.restaurant.address }}</p>
+                    <p><strong>Endereço de Entrega:</strong> {{ order.delivery_address }}</p>
+                    <p><strong>Cliente:</strong> {{ order.customer.full_name }} - {{ order.customer.phone }}</p>
+                    <p><strong>Total:</strong> R$ {{ "%.2f"|format(order.total) }}</p>
+                    <p><strong>Pagamento:</strong> {{ order.payment_method }}</p>
+                    {% if order.status.value == 'in_delivery' %}
+                    <form method="POST" action="/order/{{ order.id }}/update-status">
+                        <input type="hidden" name="new_status" value="delivered">
+                        <button type="submit" class="btn btn-success">Marcar como Entregue</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Você ainda não tem entregas.</p>
+        {% endif %}
+    </main>
+</body>
+</html>
