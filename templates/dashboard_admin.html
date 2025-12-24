@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                <span class="user-greeting">Admin: {{ current_user.full_name }}</span>
+                <a href="/logout" class="btn btn-secondary">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <h1>Painel Administrativo</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total de Pedidos</h3>
+                <p class="stat-number">{{ orders|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Restaurantes Ativos</h3>
+                <p class="stat-number">{{ restaurants|length }}</p>
+            </div>
+        </div>
+
+        <h2>Todos os Pedidos</h2>
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Pedido #{{ order.order_number }}</h3>
+                    <span class="order-status status-{{ order.status.value }}">{{ order.status.value|upper }}</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Cliente:</strong> {{ order.customer.full_name }} - {{ order.customer.email }}</p>
+                    <p><strong>Restaurante:</strong> {{ order.restaurant.name }}</p>
+                    <p><strong>Total:</strong> R$ {{ "%.2f"|format(order.total) }}</p>
+                    <p><strong>Data:</strong> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                    {% if order.driver %}
+                    <p><strong>Entregador:</strong> {{ order.driver.full_name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhum pedido no sistema.</p>
+        {% endif %}
+
+        <h2>Restaurantes Cadastrados</h2>
+        {% if restaurants %}
+        <div class="restaurants-grid">
+            {% for restaurant in restaurants %}
+            <div class="restaurant-card">
+                <h3>{{ restaurant.name }}</h3>
+                <p>{{ restaurant.description }}</p>
+                <p><strong>Dono:</strong> {{ restaurant.owner.full_name }}</p>
+                <p><strong>Endereço:</strong> {{ restaurant.address }}</p>
+                <p><strong>Telefone:</strong> {{ restaurant.phone }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhum restaurante cadastrado.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

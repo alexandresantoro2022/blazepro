@@ -2,19 +2,52 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login BlazePro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h1>Login BlazePro 🔥</h1>
-    {% if error %}
-    <p style="color:red;">{{ error }}</p>
-    {% endif %}
-    <form method="post" action="/login">
-        <label>Usuário:</label><br>
-        <input type="text" name="username"><br>
-        <label>Senha:</label><br>
-        <input type="password" name="password"><br><br>
-        <button type="submit">Entrar</button>
-    </form>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="/register" class="btn btn-secondary">Cadastrar</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <h2>Entrar na sua conta</h2>
+            {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="/login" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+            </form>
+            <p class="auth-footer">
+                Não tem uma conta? <a href="/register">Cadastre-se</a>
+            </p>
+            <div class="demo-accounts">
+                <h4>Contas de Teste:</h4>
+                <ul>
+                    <li><strong>Admin:</strong> admin@deliverypro.com / admin123</li>
+                    <li><strong>Cliente:</strong> cliente1@email.com / 123456</li>
+                    <li><strong>Restaurante:</strong> restaurante1@email.com / 123456</li>
+                    <li><strong>Entregador:</strong> entregador1@email.com / 123456</li>
+                </ul>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

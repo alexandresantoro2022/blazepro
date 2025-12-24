@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Restaurante - DeliveryPro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/"><h1>🍕 DeliveryPro</h1></a>
+            </div>
+            <div class="nav-links">
+                <span class="user-greeting">Olá, {{ current_user.full_name }}</span>
+                <a href="/logout" class="btn btn-secondary">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard">
+        <h1>Painel do Restaurante</h1>
+        
+        {% if not restaurants %}
+        <div class="card">
+            <h2>Criar Restaurante</h2>
+            <form method="POST" action="/restaurant/create" class="form">
+                <div class="form-group">
+                    <label for="name">Nome do Restaurante</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="address">Endereço</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Telefone</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="delivery_fee">Taxa de Entrega (R$)</label>
+                        <input type="number" id="delivery_fee" name="delivery_fee" step="0.01" value="5.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="min_order">Pedido Mínimo (R$)</label>
+                        <input type="number" id="min_order" name="min_order" step="0.01" value="10.00" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Criar Restaurante</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="restaurant-info-card">
+            <h2>{{ restaurants[0].name }}</h2>
+            <p>{{ restaurants[0].description }}</p>
+            <p><strong>Endereço:</strong> {{ restaurants[0].address }}</p>
+            <p><strong>Telefone:</strong> {{ restaurants[0].phone }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Adicionar Item ao Cardápio</h2>
+            <form method="POST" action="/menu/add" class="form">
+                <input type="hidden" name="restaurant_id" value="{{ restaurants[0].id }}">
+                <div class="form-group">
+                    <label for="name">Nome do Item</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Preço (R$)</label>
+                        <input type="number" id="price" name="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Categoria</label>
+                        <input type="text" id="category" name="category" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar Item</button>
+            </form>
+        </div>
+
+        <h2>Pedidos Recebidos</h2>
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Pedido #{{ order.order_number }}</h3>
+                    <span class="order-status status-{{ order.status.value }}">{{ order.status.value|upper }}</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Cliente:</strong> {{ order.customer.full_name }} - {{ order.customer.phone }}</p>
+                    <p><strong>Endereço:</strong> {{ order.delivery_address }}</p>
+                    <p><strong>Total:</strong> R$ {{ "%.2f"|format(order.total) }}</p>
+                    <p><strong>Pagamento:</strong> {{ order.payment_method }}</p>
+                    {% if order.notes %}
+                    <p><strong>Observações:</strong> {{ order.notes }}</p>
+                    {% endif %}
+                    <div class="order-items">
+                        <strong>Itens:</strong>
+                        <ul>
+                            {% for item in order.items %}
+                            <li>{{ item.quantity }}x {{ item.menu_item.name }}
+                                {% if item.notes %} - {{ item.notes }}{% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="order-actions">
+                        {% if order.status.value == 'pending' %}
+                        <form method="POST" action="/order/{{ order.id }}/update-status" style="display: inline;">
+                            <input type="hidden" name="new_status" value="confirmed">
+                            <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+                        </form>
+                        {% elif order.status.value == 'confirmed' %}
+                        <form method="POST" action="/order/{{ order.id }}/update-status" style="display: inline;">
+                            <input type="hidden" name="new_status" value="preparing">
+                            <button type="submit" class="btn btn-primary btn-sm">Preparando</button>
+                        </form>
+                        {% elif order.status.value == 'preparing' %}
+                        <form method="POST" action="/order/{{ order.id }}/update-status" style="display: inline;">
+                            <input type="hidden" name="new_status" value="ready">
+                            <button type="submit" class="btn btn-primary btn-sm">Pronto</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhum pedido recebido ainda.</p>
+        {% endif %}
+        {% endif %}
+    </main>
+</body>
+</html>
